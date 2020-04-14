@@ -345,10 +345,10 @@ class SaleOrderLine(models.Model):
                 'totalAmount': {
                     "currency": line.currency_id.name,
                     "value": '%.2f' % float(line.price_total)},
-                'vatRate': '%.2f' % float(vatRate),
+                'vatRate': '0.00',
                 'vatAmount': {
                     "currency": line.currency_id.name,
-                    "value": '%.2f' % float(line.price_tax)},
+                    "value": '0.00'},
                 'productUrl': '%s/line/%s' % (base_url, line.id),
             }
             lines.append(line_data)
