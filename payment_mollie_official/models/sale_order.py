@@ -22,7 +22,7 @@ import logging
 from mollie.api.client import Client
 
 from odoo import api, models, fields, _
-from odoo.addons.payment_mollie_official.models.mollie import\
+from odoo.addons.payment_mollie_official.models.mollie import \
     get_base_url, get_mollie_provider_key
 
 _logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ class SaleOrder(models.Model):
         currency = self.pricelist_id.currency_id or False
         country = self.partner_invoice_id.country_id or False
         for method in method_ids:
-            if self.amount_total > method.maximum_amount or\
+            if self.amount_total > method.maximum_amount or \
                     self.amount_total < method.minimum_amount:
                 continue
             if not method.currency_ids and not method.country_ids:
@@ -63,7 +63,7 @@ class SaleOrder(models.Model):
                 if country in method.country_ids:
                     available_list.append(method)
             else:
-                if currency in method.currency_ids and\
+                if currency in method.currency_ids and \
                         country in method.country_ids:
                     available_list.append(method)
         return available_list
@@ -264,12 +264,12 @@ class SaleOrder(models.Model):
                     self.mollie_orders_delete()
                     response = self.mollie_orders_create(tx_reference)
                     # It is necessary that mollie allows me to update an order
-#                     if response['amount']['value'] != '%.2f' % float(
-#                             self.amount_total):
-#                         self.mollie_orders_delete()
-#                         response = self.mollie_orders_create(tx_reference)
-#                     else:
-#                         response = self.mollie_orders_update(tx_reference)
+            #                     if response['amount']['value'] != '%.2f' % float(
+            #                             self.amount_total):
+            #                         self.mollie_orders_delete()
+            #                         response = self.mollie_orders_create(tx_reference)
+            #                     else:
+            #                         response = self.mollie_orders_update(tx_reference)
             return response
         except Exception as e:
             _logger.info("ERROR! %s" % (e,))
@@ -287,7 +287,7 @@ class SaleOrder(models.Model):
             'name': _('OpenMollieOrder'),
             'type': 'ir.actions.act_url',
             'url': 'https://www.mollie.com/dashboard/orders/%s' % (
-                self.acquirer_reference or ''),
+                    self.acquirer_reference or ''),
             'target': 'new',
         }
 
@@ -329,35 +329,28 @@ class SaleOrderLine(models.Model):
     def _get_mollie_order_line_data(self, order):
         lines = []
         base_url = get_base_url(self.env)
-        for line in order.order_line:
-            vatRate = 0.0
-            for t in line.tax_id:
-                if t.amount_type == 'percent':
-                    vatRate += t.amount
-            discountAmount = (
-                line.price_unit_taxinc - line.price_reduce_taxinc
-            ) * int(line.product_uom_qty)
-            line_data = {
-                'type': "physical",
-                'name': line.name,
-                'quantity': int(line.product_uom_qty),  # TO BE REVIEWD (float)
-                'unitPrice': {
-                    "currency": line.currency_id.name,
-                    "value": '%.2f' % float(line.price_unit_taxinc)},
-                'discountAmount': {
-                    "currency": line.currency_id.name,
-                    "value": '%.2f' % float(discountAmount)},
-                # int(line.product_uom_qty) TO BE REVIEWD (float)
-                'totalAmount': {
-                    "currency": line.currency_id.name,
-                    "value": '%.2f' % float(line.price_total)},
-                'vatRate': '0.00',
-                'vatAmount': {
-                    "currency": line.currency_id.name,
-                    "value": '0.00'},
-                'productUrl': '%s/line/%s' % (base_url, line.id),
-            }
-            lines.append(line_data)
+        line_data = {
+            'type': "physical",
+            'name': order.name,
+            'quantity': 1,  # TO BE REVIEWD (float)
+            'unitPrice': {
+                "currency": order.currency_id.name,
+                "value": '%.2f' % float(order.amount_total)},
+            'discountAmount': {
+                "currency": order.currency_id.name,
+                "value": '0.00'},
+            # int(line.product_uom_qty) TO BE REVIEWD (float)
+            'totalAmount': {
+                "currency": order.currency_id.name,
+                "value": '%.2f' % float(order.amount_total)},
+            'vatRate': '0.00',
+            'vatAmount': {
+                "currency": order.currency_id.name,
+                "value": '0.00'},
+            'productUrl': '%s/line/%s' % (base_url, order.id),
+        }
+        lines.append(line_data)
+
         return lines
 
     @api.model
