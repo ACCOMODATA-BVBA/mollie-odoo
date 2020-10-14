@@ -37,7 +37,8 @@ class ResPartner(models.Model):
         givenName = name_split[0]
         familyName = self.name.replace(name_split[0], '')
         phone = ''
-
+        if familyName == '':
+            familyName = False
         """
           Mollie only accepts E164 phone numbers. If the phone number is not in an E164 format Mollie will refuse
           the payment, resulting in Odoo doing a rollback and the user being 'kicked' to the homepage again.
