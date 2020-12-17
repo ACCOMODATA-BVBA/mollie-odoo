@@ -363,20 +363,21 @@ class PaymentAcquirerMollie(models.Model):
         result = []
         for line in lines:
             line_data = self._mollie_prepare_lines_common(line)
-            line_data.update({
-                'quantity': int(line.product_uom_qty),    # TODO: Mollie does not support float. Test with float amount
+             line_data.update({
+                'quantity': int(line.quantity),
+                # TODO: Mollie does not support float. Test with float amount
                 'unitPrice': {
-                    'currency': line.currency_id.name,
-                    'value': "%.2f" % line.price_reduce_taxinc
+                    'currency': line.always_set_currency_id.name,
+                    'value': "%.2f" % (line.price_total / int(line.quantity))
                 },
                 'totalAmount': {
-                    'currency': line.currency_id.name,
+                    'currency': line.always_set_currency_id.name,
                     'value': "%.2f" % line.price_total,
                 },
-                'vatRate': "%.2f" % sum(line.tax_id.mapped('amount')),
+                'vatRate': "%.2f" % sum(line.tax_ids.mapped('amount')),
                 'vatAmount': {
-                    'currency': line.currency_id.name,
-                    'value': "%.2f" % line.price_tax,
+                    'currency': line.always_set_currency_id.name,
+                    'value': "%.2f" % (line.price_total - line.price_subtotal),
                 }
             })
             result.append(line_data)
@@ -410,10 +411,10 @@ class PaymentAcquirerMollie(models.Model):
                     'currency': line.always_set_currency_id.name,
                     'value': "%.2f" % line.price_total,
                 },
-                'vatRate': "%.2f" % sum(line.tax_ids.mapped('amount')),
+                'vatRate': "0",
                 'vatAmount': {
                     'currency': line.always_set_currency_id.name,
-                    'value': "%.2f" % (line.price_total - line.price_subtotal),
+                    'value': "0.00",
                 }
             })
             result.append(line_data)
