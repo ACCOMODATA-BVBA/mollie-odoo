@@ -363,7 +363,7 @@ class PaymentAcquirerMollie(models.Model):
         result = []
         for line in lines:
             line_data = self._mollie_prepare_lines_common(line)
-             line_data.update({
+            line_data.update({
                 'quantity': int(line.quantity),
                 # TODO: Mollie does not support float. Test with float amount
                 'unitPrice': {
