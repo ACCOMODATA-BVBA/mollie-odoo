@@ -364,20 +364,20 @@ class PaymentAcquirerMollie(models.Model):
         for line in lines:
             line_data = self._mollie_prepare_lines_common(line)
             line_data.update({
-                'quantity': int(line.quantity),
+                'quantity': int(line.product_uom_qty),
                 # TODO: Mollie does not support float. Test with float amount
                 'unitPrice': {
-                    'currency': line.always_set_currency_id.name,
-                    'value': "%.2f" % (line.price_total / int(line.quantity))
+                    'currency': line.currency_id.name,
+                    'value': "%.2f" % (line.price_reduce_taxinc)
                 },
                 'totalAmount': {
-                    'currency': line.always_set_currency_id.name,
+                    'currency': line.currency_id.name,
                     'value': "%.2f" % line.price_total,
                 },
-                'vatRate': "%.2f" % sum(line.tax_ids.mapped('amount')),
+                'vatRate': "0",
                 'vatAmount': {
-                    'currency': line.always_set_currency_id.name,
-                    'value': "%.2f" % (line.price_total - line.price_subtotal),
+                    'currency': line.currency_id.name,
+                    'value': "0.00",
                 }
             })
             result.append(line_data)
