@@ -80,7 +80,7 @@ class SaleOrder(models.Model):
     @api.model
     def _get_mollie_to_update_order_data(self, order_id, tx_reference, **post):
         order = self.sudo().browse(order_id)
-        orderNumber = 'ODOO%s' % (order.id,)
+        orderNumber = 'ODOO%s' % (order.name,)
         base_url = get_base_url(self.env)
         method = (order.acquirer_method and
                   order.acquirer_method.acquirer_reference) or 'None'
@@ -105,7 +105,7 @@ class SaleOrder(models.Model):
     @api.model
     def _get_mollie_order_data(self, order_id, tx_reference, **post):
         order = self.sudo().browse(order_id)
-        orderNumber = 'ODOO%s' % (order.id,)
+        orderNumber = 'ODOO%s' % (order.name,)
         lines = self.env["sale.order.line"].sudo(
         )._get_mollie_order_line_data(order)
         base_url = get_base_url(self.env)
