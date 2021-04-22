@@ -82,10 +82,10 @@ class MollieController(http.Controller):
             }
         }
 
-        mollie_response = requests.post(
+        response = requests.post(
             url, data=json.dumps(payload), headers=headers).json()
 
-        if mollie_response["status"] == "open":
+        if response.get("status", False) and response["status"] == "open":
 
             payment_tx = request.env['payment.transaction'].sudo().search([('reference', '=', orderid)])
             if not payment_tx or len(payment_tx) > 1:
@@ -96,9 +96,9 @@ class MollieController(http.Controller):
                     error_msg += ('; multiple order found')
                 _logger.info(error_msg)
                 raise ValidationError(error_msg)
-            payment_tx.write({"acquirer_reference": mollie_response["id"]})
+            payment_tx.write({"acquirer_reference": response["id"]})
 
-            payment_url = mollie_response["links"]["paymentUrl"]
+            payment_url = response["links"]["paymentUrl"]
             return werkzeug.utils.redirect(payment_url)
 
         return werkzeug.utils.redirect("/")

@@ -154,7 +154,7 @@ class TxMollie(models.Model):
                     transactionId:
                 data = x
                 break
-
+        status = data.get('status')
 
         if status == "paid":
             vals = {
