@@ -2,10 +2,10 @@
 
 {
     'name': 'Mollie Payments',
-    'version': '13.0.1.3',
+    'version': '13.0.1.4',
     'category': 'eCommerce',
     'license': 'LGPL-3',
-    'author': 'Mollie',
+    'author': 'Mollie, Accomodata BVBA',
     'maintainer': 'Applix',
     'website': 'https://www.mollie.com/',
 

@@ -363,6 +363,15 @@ class PaymentAcquirerMollie(models.Model):
         result = []
         for line in lines:
             line_data = self._mollie_prepare_lines_common(line)
+            # Note: Huge issue on tax amount rounding from Odoo
+            # resulting to occasional amount errors
+            # line_totals was for testing purposes but is equal to price_total
+            # line_totals = line.tax_id.with_context(round=True).compute_all(
+            #     line.price_unit,
+            #     currency=line.currency_id,
+            #     quantity=line.product_uom_qty,
+            #     product=line.product_id
+            # )
             line_data.update({
                 'quantity': int(line.product_uom_qty),
                 # TODO: Mollie does not support float. Test with float amount
@@ -372,7 +381,11 @@ class PaymentAcquirerMollie(models.Model):
                 },
                 'totalAmount': {
                     'currency': line.currency_id.name,
-                    'value': "%.2f" % line.price_total,
+                    # 'value': "%.2f" % line_totals.get('total_included')
+                    # 'value': "%.2f" % line.price_total,
+                    # Should solve most problems by using price_tax which is
+                    # also used for the total order amounts
+                    'value': "%.2f" % (line.price_tax + line.price_subtotal),
                 },
                 'vatRate': "0",
                 'vatAmount': {
